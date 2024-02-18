@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ValarNamer</title>
+    <style>
+        @font-face {
+            font-family: 'RingbearerMedium';
+            src: url('fonts/ringbearer-font/RingbearerMedium-51mgZ.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'RingbearerMedium', sans-serif;
+        }
+        .container {
+            text-align: center;
+        }
+        button {
+            margin-top: 20px;
+            font-family: 'RingbearerMedium', sans-serif;
+        }
+    </style>
+    <style>
+        footer {
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #ffffff;
+            color: black;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="name" style="font-size: 28px;"></div>
+        <div id="description" style="font-size: 20px;"></div>
+        <button onclick="getRandomName()">New random name</button>
+        <div id="github_status" style="margin-top: 20px;"></div>
+    </div>
+    <script>
+        function getRandomName() {
+            fetch('names.json')
+            .then(response => response.json())
+            .then(data => {
+                const names = data;
+                const index = Math.floor(Math.random() * names.length);
+                const name = names[index].name;
+                const desc = names[index].desc;
+                document.getElementById('name').innerText = name.toUpperCase();
+                document.getElementById('description').innerText = desc;
+                // Check if the name is available on GitHub
+                return fetch(`https://api.github.com/users/${name}`);
+            })
+            .then(githubResponse => {
+                // Directly checking the status, not assuming error throws for non-200 responses
+                const githubStatus = githubResponse.status === 404 ? "Name is free on GitHub" : "The name is taken";
+                document.getElementById('github_status').innerText = githubStatus;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('github_status').innerText = 'Error checking GitHub';
+            });
+        }
+        getRandomName();
+    </script>
+    <footer>
+        Made by Artem Golenchenko. <a href="https://github.com/zzappa/valarnamer.github.io" target="_blank">See the project on GitHub.</a>
+    </footer>
+</body>
+</html>
